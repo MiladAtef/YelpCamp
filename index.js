@@ -1,76 +1,63 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const app = express();
+
+require('./models/Campground');
+const Campground = mongoose.model('Campground');
+
+mongoose.connect(
+	'mongodb://localhost:27017/yelpcamp',
+	{
+		useNewUrlParser: true,
+		useCreateIndex: true
+	},
+	err => {
+		if (!err) {
+			console.log('MongoDB Connection Succeeded.');
+		} else {
+			console.log('Error in DB connection: ' + err);
+		}
+	}
+);
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const campgrounds = [
-	{
-		name: 'Salmon Greek',
-		image:
-			'https://images.unsplash.com/photo-1475483768296-6163e08872a1?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=750&q=80'
-	},
-	{
-		name: 'Granite Hill',
-		image:
-			'https://images.unsplash.com/photo-1494545261862-dadfb7e1c13d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=750&q=80'
-	},
-	{
-		name: "Mountain Goat's rest",
-		image:
-			'https://images.unsplash.com/photo-1500581276021-a4bbcd0050c5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=750&q=80'
-	},
-	{
-		name: 'Salmon Greek',
-		image:
-			'https://images.unsplash.com/photo-1475483768296-6163e08872a1?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=750&q=80'
-	},
-	{
-		name: 'Granite Hill',
-		image:
-			'https://images.unsplash.com/photo-1494545261862-dadfb7e1c13d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=750&q=80'
-	},
-	{
-		name: "Mountain Goat's rest",
-		image:
-			'https://images.unsplash.com/photo-1500581276021-a4bbcd0050c5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=750&q=80'
-	},
-	{
-		name: 'Salmon Greek',
-		image:
-			'https://images.unsplash.com/photo-1475483768296-6163e08872a1?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=750&q=80'
-	},
-	{
-		name: 'Granite Hill',
-		image:
-			'https://images.unsplash.com/photo-1494545261862-dadfb7e1c13d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=750&q=80'
-	},
-	{
-		name: "Mountain Goat's rest",
-		image:
-			'https://images.unsplash.com/photo-1500581276021-a4bbcd0050c5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=750&q=80'
-	}
-];
-
 app.get('/', (req, res) => {
 	res.render('landing');
 });
 
-app.get('/campgrounds', (req, res) => {
-	res.render('campgrounds', { campgrounds });
+app.get('/campgrounds', async (req, res) => {
+	const campgrounds = await Campground.find({});
+	res.render('index', { campgrounds });
 });
 
-app.post('/campgrounds', (req, res) => {
-	const { name, image } = req.body;
-	campgrounds.push({ name, image });
+app.post('/campgrounds', async (req, res) => {
+	const { name, image, description } = req.body;
+	const campground = new Campground({
+		name,
+		image,
+		description
+	});
+	await campground.save();
 	res.redirect('/campgrounds');
 });
 
 app.get('/campgrounds/new', (req, res) => {
 	res.render('new');
+});
+
+app.get('/campgrounds/:id', async (req, res) => {
+	const { id } = req.params;
+	try {
+		const campground = await Campground.findById(id);
+		return res.render('show', { campground });
+	} catch (e) {
+		return res.status(404).send('Not Found!');
+	}
 });
 
 const PORT = process.env.PORT || 5000;
