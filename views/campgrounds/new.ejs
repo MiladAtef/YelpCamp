@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<% include partials/header %>
+		<% include ../partials/header %>
 		<title>new Campground Page</title>
 	</head>
 	<body>
-		<% include partials/navbar %>
+		<% include ../partials/navbar %>
 		<div class="container">
 			<div class="row">
 				<h1 style="text-align: center">new Campground</h1>
@@ -17,6 +17,7 @@
 								type="text"
 								name="name"
 								placeholder="name"
+								required
 							/>
 						</div>
 						<div class="form-group">
@@ -25,6 +26,7 @@
 								type="text"
 								name="image"
 								placeholder="imageUrl"
+								required
 							/>
 						</div>
 						<div class="form-group">
@@ -33,6 +35,7 @@
 								type="text"
 								name="description"
 								placeholder="description"
+								required
 							/>
 						</div>
 						<div class="form-group">
@@ -43,6 +46,6 @@
 				</div>
 			</div>
 		</div>
-		<% include partials/footer %>
+		<% include ../partials/footer %>
 	</body>
 </html>
